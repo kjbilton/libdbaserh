@@ -39,7 +39,7 @@ The manufacturer's explanation of the difference between DigiBase and DigiBase-R
 1. Run the control program: ```sudo ./dbaserh```
 
 ## Acknowledgements
-`libdbaserh` originally comes from [Jan Kamenik](kamenik@hawaii.edu). It is an extension of `libdbase`, written by [Peder Kock](peder.kock@med.lu.se) and Jonas Nilsson,
+`libdbaserh` originally comes from [Jan Kamenik](jankamenik@gmail.com). It is an extension of `libdbase`, written by [Peder Kock](peder.kock@med.lu.se) and Jonas Nilsson,
 Lund University. See http://libdbase.sourceforge.net for more information on `libdbase`.
 
 ## License
