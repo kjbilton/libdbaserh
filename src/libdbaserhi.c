@@ -546,7 +546,7 @@ void dbase_print_file_spectrum_binary(const int32_t *arr, int len, FILE *fh){
 /* 
   JK, digibase init-sequence TODO: "clean" the init process
 */
-int dbase_init(libusb_device_handle *dev){
+int dbase_init(libusb_device_handle *dev, const char *filename){
   int err, written;
   unsigned char buf0[4] = {[0] = START, [2] = 0x02};/*JK, digiBaseRH start msgs are 4 bytes*/
 
@@ -591,7 +591,7 @@ int dbase_init(libusb_device_handle *dev){
   if( err == 4 ) { /*JK*/
     if(_DEBUG > 0)
       printf("Device uninitialized - Starting dbase_init2():\n");
-    return dbase_init2(dev);
+    return dbase_init2(dev, filename);
   }
 
   /* Already awake - init done */
@@ -607,7 +607,7 @@ int dbase_init(libusb_device_handle *dev){
 /* 
    New Connection - send firmware packages
 */
-int dbase_init2(libusb_device_handle *dev){
+int dbase_init2(libusb_device_handle *dev, const char *filename){
   int k, err, written;
   unsigned char buf0[4] = {[0] = START2, [2] = 2};  /* JK, start_msg buffer */
   
@@ -623,25 +623,13 @@ int dbase_init2(libusb_device_handle *dev){
     err_str("dbase_init2(), when writing START2 command", err);
     return -1;
   }
-  
-  /* Get filename: 
-     defined though gcc compiler option (-DPACK_PATH ...)
-     in Makefile
-  */
-#ifndef PACK_PATH
-    /* if no path is given, assume firmware in . */
-    char str[] = "digiBaseRH.rbf"; /*JK*/ 
-#else
-    char str[strlen(PACK_PATH) + 32];
-    snprintf(str, sizeof(str), "%s/digiBaseRH.rbf", PACK_PATH); /*JK*/ 
-#endif
 
   /* Write packs 1,2 */ /*JK, digiBaseRH - 2 packs of firmware*/
   for(k = 0; k < 2; k++){
  
     /* Get binary data from file */
     int len;
-    unsigned char *buf = dbase_get_firmware_pack(str, k, &len);
+    unsigned char *buf = dbase_get_firmware_pack(filename, k, &len);
     if(buf == NULL){
       fprintf(stderr, "E: unable to read firmware - aborting\n");
       return -EIO;

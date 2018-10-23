@@ -34,7 +34,7 @@ NAME = libdbaserh.so.$(MAJOR).$(MINOR)
 # Compiler options
 CC = gcc
 CFLAGS = -g -Wall -O2 -DPACK_PATH=\"$(PACKAGE_PATH)\"
-LDLIBS = -l$(LIBUSBNAME) libdbaserh.a
+LDLIBS = libdbaserh.a -l$(LIBUSBNAME)
 LDFLAGS = -L.
 BINDIR = .
 VPATH = src
@@ -75,7 +75,7 @@ libdbaserh.o: $(SRC)      # build static lib part 1
 libdbaserhi.o: $(iSRC)    # build static lib part 2
 
 $(NAME): libdbaserhs.o libdbaserhis.o   # link shared
-	$(CC) -shared -fPIC -o $@ libdbaserhs.o libdbaserhis.o
+	$(CC) -shared -fPIC -o $@ libdbaserhs.o libdbaserhis.o -l$(LIBUSBNAME)
 
 libdbaserhs.o: $(SRC)     # build shared lib
 	$(CC) $(CFLAGS) -c -fPIC $< -o $@
