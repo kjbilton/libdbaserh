@@ -465,11 +465,23 @@ int main(int argc, char **argv) {
     dbase_exit(0);
   }
 
+  /* Get filename:
+     defined though gcc compiler option (-DPACK_PATH ...)
+     in Makefile
+  */
+#ifndef PACK_PATH
+    /* if no path is given, assume firmware in . */
+    char str[] = "digiBaseRH.rbf"; /*JK*/
+#else
+    char str[strlen(PACK_PATH) + 32];
+    snprintf(str, sizeof(str), "%s/digiBaseRH.rbf", PACK_PATH); /*JK*/
+#endif
+
   /* Find and open connection to detector */
   if(dev > 0){
     if(!q)
       printf("Opening device no %d (serial %d)\n", dev, serials[dev]);
-    det = libdbase_init(serials[dev]);
+    det = libdbase_init(serials[dev], str);
     if(det == NULL){
       if(!q)
 	fprintf(stderr, "Error: Couldn't open device no %d\n", dev);
@@ -479,7 +491,7 @@ int main(int argc, char **argv) {
   else{
     if(!q)
       printf("Opening first device\n");
-    if((det = libdbase_init(-1)) == NULL){
+    if((det = libdbase_init(-1, str)) == NULL){
       if(!q)
 	fprintf(stderr, "Error: Couldn't open digibase\n");
       return EXIT_FAILURE;

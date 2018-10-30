@@ -317,7 +317,7 @@ int libdbase_set_pha_mode(detector *det);
     number of dbases in *found
 */
 
-int libdbase_get_list(detector *** list, int *found);
+int libdbase_get_list(detector *** list, int *found, const char *filename);
 
 /* 
    Close connection to each detector and free list 
@@ -333,7 +333,7 @@ int libdbase_free_list(detector *** list);
      otherwise a pointer to the dbase with the given serial
      number is returned
 */
-detector *libdbase_init(int dbase_serial);
+detector *libdbase_init(int dbase_serial, const char *filename);
 
 /*
   Close (usb) and release resources 

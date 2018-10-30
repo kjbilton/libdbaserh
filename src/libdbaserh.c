@@ -51,7 +51,7 @@ int detectors = 0;
   - returns NULL terminated detector* array and
     number of found* dbases
 */
-int libdbase_get_list(detector *** list, int *found) {
+int libdbase_get_list(detector *** list, int *found, const char *filename) {
   /* Allow up to 32 dbases, should be 'nuf */
   int LEN = 32, serials[LEN], k;
     
@@ -81,7 +81,7 @@ int libdbase_get_list(detector *** list, int *found) {
   /* find and open each dbase */
   for(k=0; k < *found; k++){
     /* each detector* is allocated within libdbase_init() */
-    if( (list[0][k] = libdbase_init(serials[k])) == NULL){
+    if( (list[0][k] = libdbase_init(serials[k], filename)) == NULL){
       printf("E: libdbase_list_init() when opening detector %d with serial %d\n", 
 	     k+1, serials[k]);
       return -1;
@@ -121,7 +121,7 @@ int libdbase_free_list(detector *** list){
    Initialize usb device and, 
    if found, initialize first detector 
 */
-detector* libdbase_init(int dbase_serial){
+detector* libdbase_init(int dbase_serial, const char *filename){
   
   /* (lib)usb device handle */
   struct libusb_device_handle *dev_handle;
@@ -180,7 +180,7 @@ detector* libdbase_init(int dbase_serial){
   }
   
   /* Initialize dbase */
-  if( (err = dbase_init(dev_handle)) > -1){
+  if( (err = dbase_init(dev_handle, filename)) > -1){
     /* Assign status struct */
     err = dbase_get_status(det->dev, &det->status);
     if( err < 0 )
@@ -1169,6 +1169,8 @@ int check_status_sanity(status_msg stat, status_msg *mod){
   Set digiBASE in PHA (Pulse Height Analysis) Mode (default)
 */
 int libdbase_set_pha_mode(detector *det){
+  if(check_detector(det, "libdbase_set_pha_mode") < 0)
+    return -1;
   int err;
   /* Set mode bit */
   det->status.CTRL |= (uint8_t) MODE_PHA_MASK;
@@ -1190,6 +1192,8 @@ int libdbase_set_pha_mode(detector *det){
   Set digiBASE in List Mode
 */
 int libdbase_set_list_mode(detector *det){
+  if(check_detector(det, "libdbase_set_list_mode") < 0)
+    return -1;
   int err;
   /* Clear on bit */
   det->status.CTRL &= (uint8_t) OFF_MASK;
@@ -1310,14 +1314,12 @@ int libdbase_read_lm_packets(detector *det, pulse *buf,
 	else if(tmp[k] <= TS_MASK){
 	  buf[r].amp =  (uint32_t) ((tmp[k] & A_MASK) >> 21);
 	  /* First time tick after (in worst case) MAX_T us */
-	  if(time[0] > 0){
-	    buf[r].time = (uint32_t) (tmp[k] & T_MASK);
-	    /* Timer rollover? */
-	    if(buf[r].time > MAX_T){
-	      buf[r].time -= MAX_T;
-	    }
-	    buf[r].time += time[0];
+	  buf[r].time = (uint32_t) (tmp[k] & T_MASK);
+	  /* Timer rollover? */
+	  if(buf[r].time > MAX_T){
+	    buf[r].time -= MAX_T;
 	  }
+	  buf[r].time += time[0];
 	  r++;
 	}
 	/* Timestamp then */

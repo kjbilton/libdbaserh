@@ -254,7 +254,7 @@ extern "C" {
      - if not, continue with dbase_init2()
      - if yes, continue with dbase_init3()
   */
-  int dbase_init(libusb_device_handle *dev);
+  int dbase_init(libusb_device_handle *dev, const char *filename);
 
   /* 
      JK 
@@ -263,7 +263,7 @@ extern "C" {
      - clear/reset counters and spectrum
      - read first status message
    */
-  int dbase_init2(libusb_device_handle *dev);
+  int dbase_init2(libusb_device_handle *dev, const char *filename);
 
   /* 
      JK 
